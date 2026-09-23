@@ -2,7 +2,12 @@ module github.com/alexandrmotologa/litelens
 
 go 1.27.0
 
-require modernc.org/sqlite v1.59.0
+require (
+	github.com/fsnotify/fsnotify v1.10.1
+	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-chi/cors v1.2.2
+	modernc.org/sqlite v1.59.0
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
