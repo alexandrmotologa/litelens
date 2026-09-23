@@ -1,0 +1,37 @@
+# Binaries
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+litelens
+
+# Node / Frontend
+ui/node_modules/
+ui/dist/
+ui/.env.local
+ui/.env.*.local
+*.tsbuildinfo
+
+# Test and coverage artifacts
+*.out
+*.test
+coverage/
+
+# SQLite databases used in testing/dev
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+!tests/fixtures/*.db
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
