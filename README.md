@@ -1,25 +1,81 @@
-# LiteLens
+<p align="center">
+  <img src="docs/images/logo.png?raw=true" alt="LiteLens Logo" width="140" style="border-radius: 28px;" />
+</p>
 
-LiteLens is a single-binary management studio and diagnostic engine for modern SQLite 3.45+. It focuses on areas that traditional database managers overlook: Write-Ahead Log concurrency diagnostics, visual query plan trees, missing index suggestions, vector embedding inspection, and schema diffing.
+<h1 align="center">LiteLens</h1>
 
-LiteLens runs locally as a standalone executable. It compiles with zero CGO dependencies via pure-Go SQLite (`modernc.org/sqlite`), embedding its React interface into the compiled Go binary.
+<p align="center">
+  <strong>SQLite 3.45+ Observability Studio, WAL Concurrency Engine and Diagnostics</strong>
+</p>
 
-![LiteLens Studio Demo](docs/images/litelens_demo.gif)
+<p align="center">
+  <a href="https://golang.org"><img src="https://img.shields.io/badge/go-1.23+-00ADD8.svg" alt="Go Version" /></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/react-19-61DAFB.svg" alt="React 19" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+  <a href="https://sqlite.org"><img src="https://img.shields.io/badge/sqlite-3.45+-003B57.svg" alt="SQLite" /></a>
+  <a href="https://github.com/alexandrmotologa/litelens"><img src="https://img.shields.io/badge/cgo-zero-success.svg" alt="Zero CGO" /></a>
+</p>
 
-## Highlights
+<p align="center">
+  <img src="docs/images/litelens_demo.gif" alt="LiteLens Studio Demo" width="100%" />
+</p>
 
-* **Database Doctor & Health Audit:** Comprehensive diagnostic health scores (0 to 100), PRAGMA integrity_check, quick_check, orphan foreign key detectors, freelist fragmentation metrics, and safe in-place VACUUM or VACUUM INTO execution.
-* **Interactive ER Diagram:** Full visual graph of tables with cubic Bezier curves connecting foreign key relationships, 1:N cardinality indicators, pan/zoom controls, and table relation highlighting.
-* **Diagnostic Recipes & Saved Queries:** Pre-built 1-click SQLite diagnostic routines for discovering unindexed foreign keys, storage geometry footprints, trigger catalogs, and local query persistence.
-* **FTS5 Full-Text Search Studio:** Visual query builder with match operators (AND, OR, NOT, prefix search, phrase matching), BM25 relevance ranking scores, keyword snippet highlighting, and a virtual table creation wizard with automatic synchronization triggers.
+LiteLens is a single-binary management studio and diagnostic engine for modern SQLite 3.45+. It tackles critical database observability areas that traditional GUIs overlook: Write-Ahead Log concurrency diagnostics, visual query plan trees, missing index suggestions, vector embedding exploration, interactive ER diagrams, full-text search builders, and schema migrations.
+
+LiteLens runs locally as a self-contained executable. It compiles with zero CGO dependencies via pure-Go SQLite (`modernc.org/sqlite`), embedding its React interface directly into the Go binary.
+
+## Key Features
+
+* **Database Doctor and Health Audit:** Comprehensive diagnostic health scores (0 to 100), PRAGMA integrity_check, quick_check, orphan foreign key detectors, freelist fragmentation metrics, and safe in-place VACUUM or VACUUM INTO execution.
+* **Interactive ER Diagram:** Visual schema graph with cubic Bezier curves connecting foreign key relationships, 1:N cardinality indicators, pan and zoom canvas controls, and active table relation highlighting.
+* **Visual Query Plan DAG:** Converts text EXPLAIN QUERY PLAN output into an interactive node graph with warning badges for full table scans and temporary B-tree sorting passes.
+* **Index Advisor:** Evaluates query plan scans and generates targeted CREATE INDEX statements with estimated cost reductions.
 * **WAL Index Shared Memory (-shm) Inspector:** Binary parser for the 136-byte WAL index header and the 5 concurrent reader lock marks (aReadMark[0..4]), actively identifying blocking reader frames holding back checkpoints.
+* **FTS5 Full-Text Search Studio:** Visual query builder with match operators (AND, OR, NOT, prefix search, phrase matching), BM25 relevance ranking scores, keyword snippet highlighting, and a virtual table creation wizard with automatic synchronization triggers.
 * **Vector 2D PCA Scatter Plot:** Dimensionality reduction projecting high-dimensional float32 vector embeddings onto an interactive 2D SVG canvas for cluster inspection, distance measurements, and similarity analysis.
-* **Import & Export Hub:** Streaming SQL dumps with transaction-wrapped DDL and DML, RFC 4180 CSV exports, newline-delimited JSONL, and drag-and-drop CSV/JSON dataset importing with automatic schema inference.
-* **Visual Query Plan:** Converts text EXPLAIN QUERY PLAN output into a structured graph with color-coded alerts for table scans and temporary sorting trees.
-* **Index Advisor:** Evaluates query plan scans and suggests targeted CREATE INDEX statements.
+* **Diagnostic Recipes and Saved Queries:** Pre-built 1-click SQLite diagnostic routines for discovering unindexed foreign keys, storage geometry footprints, trigger catalogs, and local query persistence.
+* **Import and Export Hub:** Streaming SQL dumps with transaction-wrapped DDL and DML, RFC 4180 CSV exports, newline-delimited JSONL, and drag-and-drop CSV and JSON dataset importing with automatic schema inference.
 * **Modern SQLite Types:** Decodes SQLite 3.45 binary JSON (jsonb), previews vector embeddings with distance metrics, and inspects image BLOBs directly.
 * **Schema Diff and Migration Generator:** Compares two database files and outputs transactional SQL migration scripts.
-* **Zero-CGO Distribution:** Compiles to a single binary with no external C dependencies.
+* **Zero-CGO Distribution:** Compiles to a single binary with no external C dependencies or runtime shared libraries.
+
+## Feature Tour
+
+### Interactive ER Diagram and Relationship Graph
+Inspect database relationships with cubic Bezier links, cardinality indicators, and table highlighting.
+![Interactive ER Diagram](docs/images/screenshot_er_diagram.png)
+
+### Virtual Data Grid and In-Place Editing
+Explore tables, views, and generated columns with pagination, search, sorting, and inline editing.
+![Data Grid](docs/images/screenshot_data_grid.png)
+
+### Query Workbench and Visual EXPLAIN DAG
+Write SQL queries, inspect tabular results, and visualize query execution trees with cost analysis.
+![Query Plan DAG](docs/images/screenshot_query_plan.png)
+
+### Database Doctor and Fragmentation Analyzer
+Audit database integrity, detect orphaned foreign keys, analyze freelist pages, and optimize disk storage.
+![Database Doctor](docs/images/screenshot_doctor.png)
+
+### WAL and Shared Memory Concurrency Engine
+Monitor real-time WAL file growth, checkpoint progress, and the 5 reader locks in the `-shm` header.
+![WAL Concurrency](docs/images/screenshot_wal.png)
+
+### FTS5 Full-Text Search Studio
+Construct BM25 search queries, test match syntax, and configure virtual full-text tables with sync triggers.
+![FTS5 Studio](docs/images/screenshot_fts5.png)
+
+### Vector Space and 2D PCA Scatter Plot
+Inspect float32 vector embeddings, visualize dimensional clusters via PCA, and calculate Euclidean distances.
+![Vector PCA Scatter Plot](docs/images/screenshot_vectors.png)
+
+### Data Transfer Hub
+Export streaming SQL dumps, CSV, and JSONL formats or import raw datasets with automatic type inference.
+![Data Transfer Hub](docs/images/screenshot_transfer.png)
+
+### Schema Diff and Migration Engine
+Compare two SQLite schemas side-by-side and generate safe, reversible SQL migration scripts.
+![Schema Diff Engine](docs/images/screenshot_diff.png)
 
 ## Architecture
 
@@ -32,10 +88,10 @@ Browser Interface (http://localhost:52000)
 LiteLens Binary (Go)
   ├── Static Server: embedded React 19 UI
   ├── Engine Layer: pure-Go SQLite driver (modernc.org/sqlite)
-  ├── Concurrency Monitor: WAL & SHM binary parsers, fsnotify watcher
-  ├── Doctor & Diagnostics: PRAGMA integrity audit, freelist analyzer
+  ├── Concurrency Monitor: WAL and SHM binary parsers, fsnotify watcher
+  ├── Doctor and Diagnostics: PRAGMA integrity audit, freelist analyzer
   ├── FTS5 Engine: virtual table detector, DDL and trigger generator
-  ├── Transfer Hub: streaming SQL dump, CSV/JSONL import & export
+  ├── Transfer Hub: streaming SQL dump, CSV/JSONL import and export
   ├── Query Analyzer: EXPLAIN parser and Index Advisor
   └── Schema Engine: AST comparator and migration generator
        │

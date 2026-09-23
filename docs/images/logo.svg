@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="squircle-clip">
+      <rect x="24" y="24" width="976" height="976" rx="220" />
+    </clipPath>
+
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="amber-core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+
+    <linearGradient id="slate-plate" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.14" />
+    </filter>
+  </defs>
+
+  <!-- Luxury White Squircle Container -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="#ffffff" stroke="#e2e8f0" stroke-width="6" />
+
+  <g clip-path="url(#squircle-clip)">
+    <g transform="translate(512, 512)" filter="url(#subtle-shadow)">
+
+      <!-- Hexagonal Architectural Gateway Frame -->
+      <polygon points="
+        0,-400
+        346,-200
+        346,200
+        0,400
+        -346,200
+        -346,-200
+      " fill="none" stroke="#0f172a" stroke-width="38" stroke-linejoin="round" />
+
+      <polygon points="
+        0,-366
+        316,-183
+        316,183
+        0,366
+        -316,183
+        -316,-183
+      " fill="none" stroke="#00f5ff" stroke-width="4" opacity="0.45" stroke-dasharray="16, 12" />
+
+      <!-- 100% Watertight Solid Base Silhouette of Sentinel Owl -->
+      <path d="
+        M 0,-260
+        L 85,-275 L 145,-385 L 175,-250
+        L 260,-120 L 275,60 L 210,210
+        L 130,290 L 0,345
+        L -130,290 L -210,210 L -275,60
+        L -260,-120 L -175,-250 L -145,-385
+        L -85,-275 Z
+      " fill="#0b0f19" />
+
+      <!-- Back Wing Mantle (Dark Facets) -->
+      <polygon points="0,345 130,290 210,210 100,190 0,260" fill="#1e293b" />
+      <polygon points="0,345 -130,290 -210,210 -100,190 0,260" fill="#0f172a" />
+
+      <polygon points="210,210 275,60 180,90 100,190" fill="#334155" />
+      <polygon points="-210,210 -275,60 -180,90 -100,190" fill="#1e293b" />
+
+      <!-- Ear Tufts / Horn Crest (Observability Antennas) -->
+      <!-- Right Tuft -->
+      <polygon points="85,-275 145,-385 130,-260" fill="#475569" />
+      <polygon points="145,-385 175,-250 130,-260" fill="#1e293b" />
+      <polygon points="115,-350 145,-385 135,-330" fill="url(#cyan-glow)" />
+
+      <!-- Left Tuft -->
+      <polygon points="-85,-275 -145,-385 -130,-260" fill="#334155" />
+      <polygon points="-145,-385 -175,-250 -130,-260" fill="#0f172a" />
+      <polygon points="-115,-350 -145,-385 -135,-330" fill="url(#cyan-glow)" />
+
+      <!-- Forehead & Central Brow -->
+      <polygon points="0,-260 85,-275 60,-190 0,-180" fill="#475569" />
+      <polygon points="0,-260 -85,-275 -60,-190 0,-180" fill="#334155" />
+      <polygon points="0,-180 60,-190 0,-130" fill="#64748b" />
+      <polygon points="0,-180 -60,-190 0,-130" fill="#475569" />
+
+      <!-- Upper Temples & Outer Cheeks -->
+      <polygon points="85,-275 175,-250 190,-160 60,-190" fill="#334155" />
+      <polygon points="-85,-275 -175,-250 -190,-160 -60,-190" fill="#1e293b" />
+
+      <polygon points="175,-250 260,-120 190,-160" fill="#1e293b" />
+      <polygon points="-175,-250 -260,-120 -190,-160" fill="#0f172a" />
+
+      <!-- Outer Cheek Facets -->
+      <polygon points="260,-120 275,60 180,0 190,-160" fill="#334155" />
+      <polygon points="-260,-120 -275,60 -180,0 -190,-160" fill="#1e293b" />
+
+      <polygon points="190,-160 180,0 110,-40" fill="#475569" />
+      <polygon points="-190,-160 -180,0 -110,-40" fill="#334155" />
+
+      <!-- Facial Disc: Concentric Telephoto Lens Apertures (Observability Optics) -->
+      <!-- Right Eye Outer Aperture Ring -->
+      <polygon points="0,-130 60,-190 140,-150 150,-70 110,-40 0,-60" fill="#1e293b" stroke="#00f5ff" stroke-width="2.5" opacity="0.9" />
+      <!-- Left Eye Outer Aperture Ring -->
+      <polygon points="0,-130 -60,-190 -140,-150 -150,-70 -110,-40 0,-60" fill="#0f172a" stroke="#00f5ff" stroke-width="2.5" opacity="0.9" />
+
+      <!-- Right Eye Inner Chamber (Electric Cyan Glow) -->
+      <polygon points="40,-135 115,-125 125,-75 60,-65" fill="#0b0f19" />
+      <!-- Right Eye Predator Lens (Geometric Almond Aperture) -->
+      <path d="M 50,-102 Q 85,-128 118,-100 Q 85,-72 50,-102 Z" fill="url(#cyan-glow)" />
+      <!-- Pupil: Focused Slit Core -->
+      <ellipse cx="85" cy="-100" rx="9" ry="18" fill="#0b0f19" />
+      <circle cx="82" cy="-105" r="4.5" fill="#ffffff" />
+      <!-- Iris Aperture Ring -->
+      <circle cx="85" cy="-100" r="14" fill="none" stroke="url(#amber-core)" stroke-width="3" opacity="0.85" />
+
+      <!-- Left Eye Inner Chamber -->
+      <polygon points="-40,-135 -115,-125 -125,-75 -60,-65" fill="#0b0f19" />
+      <!-- Left Eye Predator Lens -->
+      <path d="M -50,-102 Q -85,-128 -118,-100 Q -85,-72 -50,-102 Z" fill="url(#cyan-glow)" />
+      <!-- Pupil: Focused Slit Core -->
+      <ellipse cx="-85" cy="-100" rx="9" ry="18" fill="#0b0f19" />
+      <circle cx="-82" cy="-105" r="4.5" fill="#ffffff" />
+      <!-- Iris Aperture Ring -->
+      <circle cx="-85" cy="-100" r="14" fill="none" stroke="url(#amber-core)" stroke-width="3" opacity="0.85" />
+
+      <!-- Hooked Mechanical Beak (Precision Query Parser) -->
+      <polygon points="0,-110 24,-50 0,15 0,-110" fill="url(#amber-core)" />
+      <polygon points="0,-110 -24,-50 0,15 0,-110" fill="#d97706" />
+      <!-- Beak Highlight Ridge -->
+      <line x1="0" y1="-110" x2="0" y2="15" stroke="#fef3c7" stroke-width="2.5" />
+
+      <!-- Lower Face & Chin Armor -->
+      <polygon points="0,15 45,0 90,60 0,75" fill="#334155" />
+      <polygon points="0,15 -45,0 -90,60 0,75" fill="#1e293b" />
+
+      <polygon points="180,0 180,90 90,60" fill="#475569" />
+      <polygon points="-180,0 -180,90 -90,60" fill="#334155" />
+
+      <!-- Chest Sternum Plate: SQLite B-Tree Lens Matrix Core -->
+      <polygon points="0,75 75,100 60,185 0,225" fill="#475569" />
+      <polygon points="0,75 -75,100 -60,185 0,225" fill="#334155" />
+
+      <!-- Central Glowing Hexagonal Node in Sternum Core -->
+      <polygon points="
+        0,120
+        32,138
+        32,174
+        0,192
+        -32,174
+        -32,138
+      " fill="url(#cyan-glow)" filter="drop-shadow(0 0 10px rgba(0,245,255,0.7))" />
+
+      <!-- Inner Core Glyph (Optical B-Tree Lens Crosshair) -->
+      <circle cx="0" cy="156" r="8" fill="#0f172a" />
+      <circle cx="0" cy="156" r="3" fill="#ffffff" />
+
+      <!-- Flanking Chest Plates (Volumetric Shading) -->
+      <polygon points="75,100 180,90 150,190 60,185" fill="#334155" />
+      <polygon points="-75,100 -180,90 -150,190 -60,185" fill="#1e293b" />
+
+      <polygon points="60,185 150,190 100,265 0,260" fill="#1e293b" />
+      <polygon points="-60,185 -150,190 -100,265 0,260" fill="#0f172a" />
+
+      <!-- Lower Tail Keel -->
+      <polygon points="0,260 70,270 0,335" fill="#334155" />
+      <polygon points="0,260 -70,270 0,335" fill="#1e293b" />
+
+      <!-- Subtle Precision Telemetry Nodes (Accent dots) -->
+      <circle cx="0" cy="-210" r="3.5" fill="#00f5ff" />
+      <circle cx="130" cy="235" r="3" fill="#00f5ff" opacity="0.8" />
+      <circle cx="-130" cy="235" r="3" fill="#00f5ff" opacity="0.8" />
+      <circle cx="215" cy="120" r="3" fill="#00f5ff" opacity="0.8" />
+      <circle cx="-215" cy="120" r="3" fill="#00f5ff" opacity="0.8" />
+
+    </g>
+  </g>
+</svg>
