@@ -4,6 +4,8 @@ LiteLens is a single-binary management studio and diagnostic engine for modern S
 
 LiteLens runs locally as a standalone executable. It compiles with zero CGO dependencies via pure-Go SQLite (`modernc.org/sqlite`), embedding its React interface into the compiled Go binary.
 
+![LiteLens Studio Demo](docs/images/litelens_demo.gif)
+
 ## Highlights
 
 * **WAL Concurrency Diagnostics:** Inspects active WAL frames, checkpoint delays, and lock contention patterns that cause `SQLITE_BUSY` errors.
