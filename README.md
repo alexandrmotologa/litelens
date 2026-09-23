@@ -8,10 +8,16 @@ LiteLens runs locally as a standalone executable. It compiles with zero CGO depe
 
 ## Highlights
 
-* **WAL Concurrency Diagnostics:** Inspects active WAL frames, checkpoint delays, and lock contention patterns that cause `SQLITE_BUSY` errors.
-* **Visual Query Plan:** Converts text `EXPLAIN QUERY PLAN` output into a structured graph with color-coded alerts for table scans and temporary sorting trees.
-* **Index Advisor:** Evaluates query plan scans and suggests targeted `CREATE INDEX` statements.
-* **Modern SQLite Types:** Decodes SQLite 3.45 binary JSON (`jsonb`), previews vector embeddings with distance metrics, and inspects image BLOBs directly.
+* **Database Doctor & Health Audit:** Comprehensive diagnostic health scores (0 to 100), PRAGMA integrity_check, quick_check, orphan foreign key detectors, freelist fragmentation metrics, and safe in-place VACUUM or VACUUM INTO execution.
+* **Interactive ER Diagram:** Full visual graph of tables with cubic Bezier curves connecting foreign key relationships, 1:N cardinality indicators, pan/zoom controls, and table relation highlighting.
+* **Diagnostic Recipes & Saved Queries:** Pre-built 1-click SQLite diagnostic routines for discovering unindexed foreign keys, storage geometry footprints, trigger catalogs, and local query persistence.
+* **FTS5 Full-Text Search Studio:** Visual query builder with match operators (AND, OR, NOT, prefix search, phrase matching), BM25 relevance ranking scores, keyword snippet highlighting, and a virtual table creation wizard with automatic synchronization triggers.
+* **WAL Index Shared Memory (-shm) Inspector:** Binary parser for the 136-byte WAL index header and the 5 concurrent reader lock marks (aReadMark[0..4]), actively identifying blocking reader frames holding back checkpoints.
+* **Vector 2D PCA Scatter Plot:** Dimensionality reduction projecting high-dimensional float32 vector embeddings onto an interactive 2D SVG canvas for cluster inspection, distance measurements, and similarity analysis.
+* **Import & Export Hub:** Streaming SQL dumps with transaction-wrapped DDL and DML, RFC 4180 CSV exports, newline-delimited JSONL, and drag-and-drop CSV/JSON dataset importing with automatic schema inference.
+* **Visual Query Plan:** Converts text EXPLAIN QUERY PLAN output into a structured graph with color-coded alerts for table scans and temporary sorting trees.
+* **Index Advisor:** Evaluates query plan scans and suggests targeted CREATE INDEX statements.
+* **Modern SQLite Types:** Decodes SQLite 3.45 binary JSON (jsonb), previews vector embeddings with distance metrics, and inspects image BLOBs directly.
 * **Schema Diff and Migration Generator:** Compares two database files and outputs transactional SQL migration scripts.
 * **Zero-CGO Distribution:** Compiles to a single binary with no external C dependencies.
 
@@ -26,12 +32,15 @@ Browser Interface (http://localhost:52000)
 LiteLens Binary (Go)
   ├── Static Server: embedded React 19 UI
   ├── Engine Layer: pure-Go SQLite driver (modernc.org/sqlite)
-  ├── Concurrency Monitor: WAL header reader and fsnotify watcher
+  ├── Concurrency Monitor: WAL & SHM binary parsers, fsnotify watcher
+  ├── Doctor & Diagnostics: PRAGMA integrity audit, freelist analyzer
+  ├── FTS5 Engine: virtual table detector, DDL and trigger generator
+  ├── Transfer Hub: streaming SQL dump, CSV/JSONL import & export
   ├── Query Analyzer: EXPLAIN parser and Index Advisor
   └── Schema Engine: AST comparator and migration generator
        │
        ▼ (Direct File I/O)
-Target SQLite Database (.db, .sqlite, .wal)
+Target SQLite Database (.db, .sqlite, .wal, .shm)
 ```
 
 ## Quick Start

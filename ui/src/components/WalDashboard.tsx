@@ -139,6 +139,142 @@ export const WalDashboard: React.FC<WalDashboardProps> = ({ wal, onRefreshWal, l
         </div>
       </div>
 
+      {/* SHM & Lock Contention Inspector Card */}
+      {wal?.shm && (
+        <div
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
+            padding: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Lock size={18} color="#6366f1" />
+              <div>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#f8fafc' }}>
+                  WAL Index Shared Memory (-shm) & Reader Lock Marks
+                </h3>
+                <p style={{ margin: '2px 0 0 0', fontSize: 12, color: 'var(--text-secondary)' }}>
+                  Tracks concurrent reader transactions and identifies blocking frame boundaries preventing checkpoint backfill.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  padding: '3px 10px',
+                  borderRadius: 4,
+                  backgroundColor: wal.shm.activeReadersCount > 0 ? 'rgba(99, 102, 241, 0.2)' : 'var(--bg-surface)',
+                  color: wal.shm.activeReadersCount > 0 ? '#818cf8' : 'var(--text-muted)',
+                  fontWeight: 500,
+                }}
+              >
+                {wal.shm.activeReadersCount} Active Reader(s)
+              </span>
+              <span
+                style={{
+                  fontSize: 12,
+                  padding: '3px 10px',
+                  borderRadius: 4,
+                  backgroundColor: wal.shm.blockingFramesCount > 0 ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                  color: wal.shm.blockingFramesCount > 0 ? '#f59e0b' : '#34d399',
+                  fontWeight: 500,
+                }}
+              >
+                {wal.shm.blockingFramesCount > 0 ? `${wal.shm.blockingFramesCount} Frames Held Back` : 'No Checkpoint Contention'}
+              </span>
+            </div>
+          </div>
+
+          {/* Reader Marks Grid */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
+              Active Reader Slot Marks (aReadMark[0..4]):
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+              {wal.shm.readMarks.map((mark, idx) => {
+                const isUnused = mark === 0xFFFFFFFF || mark === 4294967295
+                const isMin = mark === wal.shm?.minActiveReadMark && !isUnused
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--bg-surface)',
+                      border: `1px solid ${isMin ? '#f59e0b' : isUnused ? 'var(--border-subtle)' : '#6366f1'}`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Reader Slot #{idx}</span>
+                      {isMin && (
+                        <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontWeight: 600 }}>
+                          OLDEST
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: isUnused ? 'var(--text-muted)' : '#f8fafc' }}>
+                      {isUnused ? 'Idle' : `Frame #${mark.toLocaleString()}`}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Contention Warning / Notice */}
+          {wal.shm.blockingFramesCount > 0 ? (
+            <div
+              style={{
+                padding: '10px 14px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                fontSize: 12,
+                color: '#fcd34d',
+              }}
+            >
+              <AlertTriangle size={16} color="#f59e0b" />
+              <span>
+                <strong>Checkpoint Backfill Holdback:</strong> Oldest active reader is reading Frame #{wal.shm.minActiveReadMark}. SQLite cannot overwrite or backfill frames beyond this point without returning <code>SQLITE_BUSY</code> to the reader.
+              </span>
+            </div>
+          ) : (
+            <div
+              style={{
+                padding: '10px 14px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                fontSize: 12,
+                color: '#6ee7b7',
+              }}
+            >
+              <CheckCircle size={16} color="#10b981" />
+              <span>
+                <strong>Smooth WAL Checkpoints:</strong> No long-running reader transactions are pinning old WAL frames. Checkpointer can backfill up to Frame #{wal.shm.maxFrame}.
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Checkpoint Control Panel */}
       <div
         style={{

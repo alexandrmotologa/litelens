@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { Header } from './components/Header'
+import { Header, StudioTab } from './components/Header'
 import { TableSidebar } from './components/TableSidebar'
 import { VirtualGrid } from './components/VirtualGrid'
+import { ErDiagram } from './components/ErDiagram'
 import { QueryWorkbench } from './components/QueryWorkbench'
 import { WalDashboard } from './components/WalDashboard'
+import { DatabaseDoctor } from './components/DatabaseDoctor'
+import { FtsStudio } from './components/FtsStudio'
 import { VectorWorkbench } from './components/VectorWorkbench'
+import { TransferHub } from './components/TransferHub'
 import { DiffModal } from './components/DiffModal'
 import { CellInspectorModal } from './components/CellInspectorModal'
 import { RowEditModal } from './components/RowEditModal'
@@ -14,7 +18,7 @@ import { api, SchemaMetadata, WalDiagnostics, TableInfo } from './api/client'
 export const App: React.FC = () => {
   const [schema, setSchema] = useState<SchemaMetadata | null>(null)
   const [wal, setWal] = useState<WalDiagnostics | null>(null)
-  const [activeTab, setActiveTab] = useState<'data' | 'query' | 'wal' | 'vectors' | 'diff'>('data')
+  const [activeTab, setActiveTab] = useState<StudioTab>('data')
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -143,6 +147,8 @@ export const App: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'er' && <ErDiagram />}
+
           {activeTab === 'query' && (
             <QueryWorkbench onRefreshSchema={loadInitialData} />
           )}
@@ -151,7 +157,13 @@ export const App: React.FC = () => {
             <WalDashboard wal={wal} onRefreshWal={loadInitialData} liveLog={liveLog} />
           )}
 
+          {activeTab === 'doctor' && <DatabaseDoctor />}
+
+          {activeTab === 'fts' && <FtsStudio />}
+
           {activeTab === 'vectors' && <VectorWorkbench />}
+
+          {activeTab === 'transfer' && <TransferHub />}
 
           {activeTab === 'diff' && (
             <DiffModal currentDbPath={schema?.databasePath || 'Current Database'} />

@@ -49,6 +49,7 @@ type WalDiagnostics struct {
 	WalSizeBytes     int64      `json:"walSizeBytes"`
 	ShmSizeBytes     int64      `json:"shmSizeBytes"`
 	Header           *WalHeader `json:"header,omitempty"`
+	Shm              *ShmHeader `json:"shm,omitempty"`
 	TotalFrames      int        `json:"totalFrames"`
 	LastCommitPages  uint32     `json:"lastCommitPages"`
 	LastModified     *time.Time `json:"lastModified,omitempty"`
@@ -76,6 +77,9 @@ func (m *Manager) InspectWal() (*WalDiagnostics, error) {
 	if fi, err := os.Stat(shmPath); err == nil {
 		diag.ShmExists = true
 		diag.ShmSizeBytes = fi.Size()
+		if shmHdr, parseErr := ParseShm(shmPath); parseErr == nil {
+			diag.Shm = shmHdr
+		}
 	}
 
 	fi, err := os.Stat(walPath)

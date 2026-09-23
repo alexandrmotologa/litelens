@@ -1,12 +1,35 @@
 import React from 'react'
-import { Database, Activity, GitCompare, Code2, Cpu, Eye, Radio } from 'lucide-react'
+import {
+  Database,
+  Activity,
+  GitCompare,
+  Code2,
+  Cpu,
+  Eye,
+  Radio,
+  GitFork,
+  ShieldCheck,
+  Search,
+  ArrowDownUp,
+} from 'lucide-react'
 import { SchemaMetadata, WalDiagnostics } from '../api/client'
+
+export type StudioTab =
+  | 'data'
+  | 'er'
+  | 'query'
+  | 'wal'
+  | 'doctor'
+  | 'fts'
+  | 'vectors'
+  | 'transfer'
+  | 'diff'
 
 interface HeaderProps {
   schema: SchemaMetadata | null
   wal: WalDiagnostics | null
-  activeTab: 'data' | 'query' | 'wal' | 'vectors' | 'diff'
-  setActiveTab: (tab: 'data' | 'query' | 'wal' | 'vectors' | 'diff') => void
+  activeTab: StudioTab
+  setActiveTab: (tab: StudioTab) => void
   isLiveEvent: boolean
 }
 
@@ -45,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
                 LiteLens
               </span>
               <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 4, background: 'rgba(56,189,248,0.15)', color: '#38bdf8', fontWeight: 600 }}>
-                v1.0
+                v1.1
               </span>
             </div>
           </div>
@@ -101,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Main Studio Navigation Tabs */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <nav style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
         <button
           onClick={() => setActiveTab('data')}
           className={`btn-secondary ${activeTab === 'data' ? 'active-nav' : ''}`}
@@ -111,8 +134,21 @@ export const Header: React.FC<HeaderProps> = ({
             borderColor: activeTab === 'data' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
           }}
         >
-          <Database size={15} />
-          <span>Data Grid</span>
+          <Database size={14} />
+          <span>Tables</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('er')}
+          className={`btn-secondary ${activeTab === 'er' ? 'active-nav' : ''}`}
+          style={{
+            background: activeTab === 'er' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+            color: activeTab === 'er' ? '#38bdf8' : 'var(--text-secondary)',
+            borderColor: activeTab === 'er' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+          }}
+        >
+          <GitFork size={14} />
+          <span>ER Diagram</span>
         </button>
 
         <button
@@ -124,8 +160,8 @@ export const Header: React.FC<HeaderProps> = ({
             borderColor: activeTab === 'query' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
           }}
         >
-          <Code2 size={15} />
-          <span>Query & Visual Plan</span>
+          <Code2 size={14} />
+          <span>Query & Plan</span>
         </button>
 
         <button
@@ -137,13 +173,39 @@ export const Header: React.FC<HeaderProps> = ({
             borderColor: activeTab === 'wal' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
           }}
         >
-          <Activity size={15} />
-          <span>WAL Diagnostics</span>
+          <Activity size={14} />
+          <span>WAL & SHM</span>
           {wal?.totalFrames ? (
             <span style={{ fontSize: 10, padding: '1px 5px', borderRadius: 10, background: '#0284c7', color: '#fff' }}>
               {wal.totalFrames}
             </span>
           ) : null}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('doctor')}
+          className={`btn-secondary ${activeTab === 'doctor' ? 'active-nav' : ''}`}
+          style={{
+            background: activeTab === 'doctor' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+            color: activeTab === 'doctor' ? '#38bdf8' : 'var(--text-secondary)',
+            borderColor: activeTab === 'doctor' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+          }}
+        >
+          <ShieldCheck size={14} />
+          <span>Doctor</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('fts')}
+          className={`btn-secondary ${activeTab === 'fts' ? 'active-nav' : ''}`}
+          style={{
+            background: activeTab === 'fts' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+            color: activeTab === 'fts' ? '#38bdf8' : 'var(--text-secondary)',
+            borderColor: activeTab === 'fts' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+          }}
+        >
+          <Search size={14} />
+          <span>FTS5</span>
         </button>
 
         <button
@@ -155,8 +217,21 @@ export const Header: React.FC<HeaderProps> = ({
             borderColor: activeTab === 'vectors' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
           }}
         >
-          <Cpu size={15} />
-          <span>Vectors & Types</span>
+          <Cpu size={14} />
+          <span>Vectors</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('transfer')}
+          className={`btn-secondary ${activeTab === 'transfer' ? 'active-nav' : ''}`}
+          style={{
+            background: activeTab === 'transfer' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+            color: activeTab === 'transfer' ? '#38bdf8' : 'var(--text-secondary)',
+            borderColor: activeTab === 'transfer' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+          }}
+        >
+          <ArrowDownUp size={14} />
+          <span>Transfer</span>
         </button>
 
         <button
@@ -168,8 +243,8 @@ export const Header: React.FC<HeaderProps> = ({
             borderColor: activeTab === 'diff' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
           }}
         >
-          <GitCompare size={15} />
-          <span>Schema Diff</span>
+          <GitCompare size={14} />
+          <span>Diff</span>
         </button>
       </nav>
     </header>

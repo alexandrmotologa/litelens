@@ -43,6 +43,9 @@ func NewRouter(cfg Config) http.Handler {
 	walH := handlers.NewWalHandler(cfg.Manager)
 	diffH := handlers.NewDiffHandler(cfg.Manager)
 	codecH := handlers.NewCodecHandler()
+	doctorH := handlers.NewDoctorHandler(cfg.Manager)
+	ftsH := handlers.NewFtsHandler(cfg.Manager)
+	transferH := handlers.NewTransferHandler(cfg.Manager)
 
 	// API Routes
 	r.Route("/api", func(api chi.Router) {
@@ -71,6 +74,19 @@ func NewRouter(cfg Config) http.Handler {
 		// Codecs & Diagnostics
 		api.Post("/codec/blob", codecH.InspectBlob)
 		api.Post("/codec/vector", codecH.CalcVectorDistances)
+
+		// Doctor & Health Audit
+		api.Get("/doctor/health", doctorH.GetHealth)
+		api.Post("/doctor/vacuum", doctorH.ExecuteVacuum)
+
+		// FTS5 Full-Text Search Studio
+		api.Get("/fts/tables", ftsH.GetTables)
+		api.Post("/fts/ddl", ftsH.GenerateDdl)
+		api.Post("/fts/create", ftsH.CreateTable)
+
+		// Import & Export Hub
+		api.Get("/transfer/export", transferH.Export)
+		api.Post("/transfer/import", transferH.Import)
 	})
 
 	// Static Web Client

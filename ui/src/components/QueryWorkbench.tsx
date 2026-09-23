@@ -8,6 +8,49 @@ interface QueryWorkbenchProps {
   onRefreshSchema?: () => void
 }
 
+interface SavedQuery {
+  id: string
+  title: string
+  sql: string
+  createdAt: string
+}
+
+const DIAGNOSTIC_RECIPES = [
+  {
+    name: 'Unindexed Foreign Keys',
+    desc: 'Find FK columns missing index coverage (high scan penalty)',
+    sql: `-- Unindexed Foreign Keys in Child Tables
+SELECT m.name AS child_table, fk."from" AS fk_column, fk."table" AS parent_table, fk."to" AS parent_pk
+FROM sqlite_schema m
+JOIN pragma_foreign_key_list(m.name) fk
+WHERE m.type = 'table'
+  AND NOT EXISTS (
+    SELECT 1 FROM pragma_index_list(m.name) il
+    JOIN pragma_index_info(il.name) ii ON ii.name = fk."from"
+  );`,
+  },
+  {
+    name: 'Storage Footprint & Geometry',
+    desc: 'Database page size, total pages, and freelist space',
+    sql: `-- Database Storage Geometry
+SELECT
+  (SELECT * FROM pragma_page_count()) * (SELECT * FROM pragma_page_size()) AS total_bytes,
+  (SELECT * FROM pragma_freelist_count()) * (SELECT * FROM pragma_page_size()) AS freelist_bytes,
+  (SELECT * FROM pragma_freelist_count()) AS freelist_pages,
+  (SELECT * FROM pragma_page_size()) AS page_size;`,
+  },
+  {
+    name: 'Active Triggers Catalog',
+    desc: 'Discover all active triggers and target tables',
+    sql: `SELECT name, tbl_name, sql FROM sqlite_schema WHERE type = 'trigger' ORDER BY tbl_name;`,
+  },
+  {
+    name: 'Index Catalog & Uniqueness',
+    desc: 'List all indexes with uniqueness and parent tables',
+    sql: `SELECT tbl_name, name, "unique", sql FROM sqlite_schema WHERE type = 'index' AND sql IS NOT NULL ORDER BY tbl_name;`,
+  },
+]
+
 export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ initialQuery = '', onRefreshSchema }) => {
   const [sql, setSql] = useState(
     initialQuery || 'SELECT * FROM sqlite_master WHERE type IN (\'table\', \'view\');'
@@ -19,6 +62,42 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ initialQuery = '
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'results' | 'plan'>('results')
   const [history, setHistory] = useState<string[]>([])
+  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>(() => {
+    try {
+      const stored = localStorage.getItem('litelens_saved_queries')
+      return stored ? JSON.parse(stored) : []
+    } catch {
+      return []
+    }
+  })
+  const [saveTitle, setSaveTitle] = useState('')
+  const [showSaveModal, setShowSaveModal] = useState(false)
+
+  const handleSaveQuery = () => {
+    if (!saveTitle.trim() || !sql.trim()) return
+    const newSaved: SavedQuery = {
+      id: Date.now().toString(),
+      title: saveTitle.trim(),
+      sql: sql.trim(),
+      createdAt: new Date().toISOString(),
+    }
+    const updated = [newSaved, ...savedQueries]
+    setSavedQueries(updated)
+    try {
+      localStorage.setItem('litelens_saved_queries', JSON.stringify(updated))
+    } catch {}
+    setSaveTitle('')
+    setShowSaveModal(false)
+  }
+
+  const handleDeleteSaved = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const updated = savedQueries.filter((q) => q.id !== id)
+    setSavedQueries(updated)
+    try {
+      localStorage.setItem('litelens_saved_queries', JSON.stringify(updated))
+    } catch {}
+  }
 
   const handleExecute = async () => {
     if (!sql.trim()) return
@@ -100,7 +179,7 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ initialQuery = '
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
               onClick={handleExecute}
@@ -122,12 +201,77 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ initialQuery = '
               <span>{explaining ? 'Analyzing...' : 'Explain Plan'}</span>
             </button>
 
+            <button
+              onClick={() => setShowSaveModal(true)}
+              className="btn-secondary"
+              style={{ fontSize: 13, padding: '6px 12px' }}
+              title="Save current query"
+            >
+              <FileCode size={14} />
+              <span>Save</span>
+            </button>
+
             <span style={{ fontSize: 11, color: 'var(--text-dim)', marginLeft: 6 }}>
               Press Ctrl+Enter
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Diagnostic Recipes Dropdown */}
+            <select
+              onChange={(e) => {
+                if (e.target.value) {
+                  setSql(e.target.value)
+                  e.target.value = ''
+                }
+              }}
+              style={{
+                background: 'var(--bg-card)',
+                color: '#6366f1',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 4,
+                padding: '4px 8px',
+                fontSize: 11,
+                fontWeight: 600,
+              }}
+            >
+              <option value="">⚡ Diagnostic Recipes</option>
+              {DIAGNOSTIC_RECIPES.map((rec, i) => (
+                <option key={i} value={rec.sql}>
+                  {rec.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Saved Queries Dropdown */}
+            {savedQueries.length > 0 && (
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setSql(e.target.value)
+                    e.target.value = ''
+                  }
+                }}
+                style={{
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 4,
+                  padding: '4px 8px',
+                  fontSize: 11,
+                  maxWidth: 160,
+                }}
+              >
+                <option value="">Saved Queries ({savedQueries.length})</option>
+                {savedQueries.map((q) => (
+                  <option key={q.id} value={q.sql}>
+                    {q.title}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* History Dropdown */}
             {history.length > 0 && (
               <select
                 onChange={(e) => {
@@ -140,13 +284,13 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ initialQuery = '
                   borderRadius: 4,
                   padding: '4px 8px',
                   fontSize: 11,
-                  maxWidth: 200,
+                  maxWidth: 150,
                 }}
               >
-                <option value="">Recent Queries ({history.length})</option>
+                <option value="">History ({history.length})</option>
                 {history.map((q, idx) => (
                   <option key={idx} value={q}>
-                    {q.slice(0, 40)}...
+                    {q.slice(0, 35)}...
                   </option>
                 ))}
               </select>
@@ -159,6 +303,40 @@ export const QueryWorkbench: React.FC<QueryWorkbenchProps> = ({ initialQuery = '
             )}
           </div>
         </div>
+
+        {/* Save Modal */}
+        {showSaveModal && (
+          <div
+            style={{
+              padding: '10px 14px',
+              backgroundColor: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+            }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 600 }}>Query Title:</span>
+            <input
+              type="text"
+              className="input"
+              placeholder="e.g. Monthly revenue aggregation"
+              value={saveTitle}
+              onChange={(e) => setSaveTitle(e.target.value)}
+              style={{ flex: 1, height: 28, fontSize: 12 }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveQuery()
+              }}
+            />
+            <button className="btn btn-primary" style={{ height: 28, padding: '0 12px', fontSize: 12 }} onClick={handleSaveQuery}>
+              Save
+            </button>
+            <button className="btn btn-secondary" style={{ height: 28, padding: '0 10px', fontSize: 12 }} onClick={() => setShowSaveModal(false)}>
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Sub-tab Navigation */}

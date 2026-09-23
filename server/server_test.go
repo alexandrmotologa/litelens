@@ -143,3 +143,86 @@ func TestAPIWalStatus(t *testing.T) {
 		t.Errorf("expected 200 OK, got %d", resp.StatusCode)
 	}
 }
+
+func TestAPIDoctorHealth(t *testing.T) {
+	ts, _, cleanup := setupTestServer(t)
+	defer cleanup()
+
+	resp, err := http.Get(ts.URL + "/api/doctor/health")
+	if err != nil {
+		t.Fatalf("GET /api/doctor/health failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200 OK, got %d", resp.StatusCode)
+	}
+
+	var rep map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&rep); err != nil {
+		t.Fatalf("failed decoding doctor response: %v", err)
+	}
+	if score, ok := rep["healthScore"].(float64); !ok || score <= 0 {
+		t.Errorf("expected positive healthScore, got %v", rep["healthScore"])
+	}
+}
+
+func TestAPIFts(t *testing.T) {
+	ts, _, cleanup := setupTestServer(t)
+	defer cleanup()
+
+	// 1. Get FTS tables (should be empty initially)
+	resp, err := http.Get(ts.URL + "/api/fts/tables")
+	if err != nil {
+		t.Fatalf("GET /api/fts/tables failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200 OK, got %d", resp.StatusCode)
+	}
+
+	// 2. Generate DDL
+	reqBody, _ := json.Marshal(map[string]any{
+		"ftsTableName": "users_fts",
+		"sourceTable":  "users",
+		"columns":      []string{"name", "email"},
+		"withTriggers": true,
+		"populateData": true,
+	})
+	resp, err = http.Post(ts.URL+"/api/fts/create", "application/json", bytes.NewReader(reqBody))
+	if err != nil {
+		t.Fatalf("POST /api/fts/create failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200 OK for fts create, got %d", resp.StatusCode)
+	}
+}
+
+func TestAPITransfer(t *testing.T) {
+	ts, _, cleanup := setupTestServer(t)
+	defer cleanup()
+
+	// 1. Export CSV
+	resp, err := http.Get(ts.URL + "/api/transfer/export?table=users&format=csv")
+	if err != nil {
+		t.Fatalf("export csv failed: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200 OK for export, got %d", resp.StatusCode)
+	}
+
+	// 2. Import JSON
+	jsonData := `[{"name": "Charlie", "email": "charlie@test.com"}]`
+	resp, err = http.Post(ts.URL+"/api/transfer/import?table=new_users&createTable=true&format=json", "application/json", bytes.NewReader([]byte(jsonData)))
+	if err != nil {
+		t.Fatalf("import json failed: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200 OK for import, got %d", resp.StatusCode)
+	}
+}

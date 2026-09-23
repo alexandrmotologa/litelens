@@ -1,9 +1,109 @@
 import React, { useState } from 'react'
-import { Cpu, FileCode, Binary, Image as ImageIcon, Zap, Check } from 'lucide-react'
+import { Cpu, FileCode, Binary, Image as ImageIcon, Zap, Check, Sparkles } from 'lucide-react'
 import { api, BlobInspection } from '../api/client'
 
 export const VectorWorkbench: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'vectors' | 'jsonb' | 'blob'>('vectors')
+  const [activeSubTab, setActiveSubTab] = useState<'vectors' | 'scatter' | 'jsonb' | 'blob'>('vectors')
+
+  // Sample vector dataset for PCA projection
+  const SAMPLE_VECTORS = [
+    { id: 1, label: 'Pro Laptop 16"', vector: [0.85, 0.72, -0.40, 0.65, 0.12, 0.05, 0.33, 0.88] },
+    { id: 2, label: 'Wireless Ergonomic Mouse', vector: [0.82, 0.68, -0.38, 0.61, 0.15, 0.02, 0.31, 0.84] },
+    { id: 3, label: 'Mechanical RGB Keyboard', vector: [0.79, 0.65, -0.35, 0.58, 0.10, 0.08, 0.28, 0.80] },
+    { id: 4, label: 'USB-C Docking Station', vector: [0.75, 0.60, -0.30, 0.50, 0.20, 0.15, 0.40, 0.72] },
+    { id: 5, label: '4K UltraSharp Monitor', vector: [0.65, 0.55, -0.25, 0.45, 0.25, 0.20, 0.45, 0.65] },
+    { id: 6, label: 'Noise Cancelling Headphones', vector: [-0.45, -0.60, 0.75, -0.50, 0.80, 0.35, -0.20, -0.30] },
+    { id: 7, label: 'Studio Condenser Mic', vector: [-0.40, -0.55, 0.70, -0.45, 0.75, 0.40, -0.15, -0.25] },
+    { id: 8, label: 'Heavy Duty Standing Desk', vector: [0.10, 0.20, 0.05, -0.10, -0.60, -0.75, 0.85, 0.15] },
+  ]
+
+  const [vectorDataset, setVectorDataset] = useState(SAMPLE_VECTORS)
+  const [selectedPointId, setSelectedPointId] = useState<number | null>(1)
+  const [hoveredPoint, setHoveredPoint] = useState<typeof SAMPLE_VECTORS[0] | null>(null)
+
+  // 2D PCA Projection calculation
+  const projectedPoints = React.useMemo(() => {
+    if (vectorDataset.length === 0) return []
+    const dims = vectorDataset[0].vector.length
+
+    // 1. Compute mean
+    const mean = new Array(dims).fill(0)
+    for (const item of vectorDataset) {
+      for (let d = 0; d < dims; d++) {
+        mean[d] += item.vector[d]
+      }
+    }
+    for (let d = 0; d < dims; d++) {
+      mean[d] /= vectorDataset.length
+    }
+
+    // 2. Center data
+    const centered = vectorDataset.map((item) => ({
+      ...item,
+      cVec: item.vector.map((v, d) => v - mean[d]),
+    }))
+
+    // 3. Simple 2D projection vectors (pseudo-PCA axes via orthogonalized projection)
+    // First principal axis: direction of max variance
+    let pc1 = new Array(dims).fill(0.3)
+    let pc2 = new Array(dims).fill(-0.2)
+    // Normalize
+    const norm = (v: number[]) => Math.sqrt(v.reduce((s, x) => s + x * x, 0)) || 1
+    const n1 = norm(pc1)
+    pc1 = pc1.map((x) => x / n1)
+
+    // Orthogonalize pc2 to pc1
+    const dot = pc1.reduce((s, x, i) => s + x * pc2[i], 0)
+    pc2 = pc2.map((x, i) => x - dot * pc1[i])
+    const n2 = norm(pc2)
+    pc2 = pc2.map((x) => x / n2)
+
+    // Power iterations to align with data covariance
+    for (let iter = 0; iter < 10; iter++) {
+      const next1 = new Array(dims).fill(0)
+      for (const item of centered) {
+        const proj = item.cVec.reduce((s, x, i) => s + x * pc1[i], 0)
+        for (let d = 0; d < dims; d++) next1[d] += item.cVec[d] * proj
+      }
+      const len1 = norm(next1)
+      if (len1 > 0) pc1 = next1.map((x) => x / len1)
+    }
+
+    for (let iter = 0; iter < 10; iter++) {
+      const next2 = new Array(dims).fill(0)
+      for (const item of centered) {
+        // Orthogonal projection
+        const proj = item.cVec.reduce((s, x, i) => s + x * pc2[i], 0)
+        for (let d = 0; d < dims; d++) next2[d] += item.cVec[d] * proj
+      }
+      const dot12 = pc1.reduce((s, x, i) => s + x * next2[i], 0)
+      for (let d = 0; d < dims; d++) next2[d] -= dot12 * pc1[d]
+      const len2 = norm(next2)
+      if (len2 > 0) pc2 = next2.map((x) => x / len2)
+    }
+
+    // 4. Project onto 2D plane
+    const rawCoords = centered.map((item) => {
+      const x = item.cVec.reduce((s, v, i) => s + v * pc1[i], 0)
+      const y = item.cVec.reduce((s, v, i) => s + v * pc2[i], 0)
+      return { ...item, x, y }
+    })
+
+    // Find min/max for normalization to canvas space (50 to 550 for X, 50 to 350 for Y)
+    const minX = Math.min(...rawCoords.map((c) => c.x))
+    const maxX = Math.max(...rawCoords.map((c) => c.x))
+    const minY = Math.min(...rawCoords.map((c) => c.y))
+    const maxY = Math.max(...rawCoords.map((c) => c.y))
+
+    const rangeX = maxX - minX || 1
+    const rangeY = maxY - minY || 1
+
+    return rawCoords.map((c) => ({
+      ...c,
+      svgX: 60 + ((c.x - minX) / rangeX) * 480,
+      svgY: 340 - ((c.y - minY) / rangeY) * 280,
+    }))
+  }, [vectorDataset])
 
   // Vectors state
   const [vecAStr, setVecAStr] = useState('0.15, 0.82, -0.34, 0.55')
@@ -101,6 +201,19 @@ export const VectorWorkbench: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setActiveSubTab('scatter')}
+          className={`btn-secondary ${activeSubTab === 'scatter' ? 'active-nav' : ''}`}
+          style={{
+            background: activeSubTab === 'scatter' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+            color: activeSubTab === 'scatter' ? '#38bdf8' : 'var(--text-secondary)',
+            borderColor: activeSubTab === 'scatter' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+          }}
+        >
+          <Sparkles size={14} />
+          <span>Vector 2D PCA Scatter Plot</span>
+        </button>
+
+        <button
           onClick={() => setActiveSubTab('jsonb')}
           className={`btn-secondary ${activeSubTab === 'jsonb' ? 'active-nav' : ''}`}
           style={{
@@ -126,6 +239,143 @@ export const VectorWorkbench: React.FC = () => {
           <span>Smart BLOB & Media Preview</span>
         </button>
       </div>
+
+      {/* Subtab: Scatter Plot (PCA 2D Projection) */}
+      {activeSubTab === 'scatter' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-md)',
+              padding: 20,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 14,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc' }}>
+                  2D Embedding Dimensionality Reduction (PCA Scatter Plot)
+                </h3>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  Projects high-dimensional float32 vector embeddings onto a 2D plane to visualize semantic clustering and similarity distance.
+                </p>
+              </div>
+
+              <button
+                className="btn btn-secondary"
+                style={{ fontSize: 12 }}
+                onClick={() => setVectorDataset(SAMPLE_VECTORS)}
+              >
+                Reset Sample Vectors
+              </button>
+            </div>
+
+            {/* SVG 2D Canvas */}
+            <div
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 8,
+                padding: 16,
+                position: 'relative',
+              }}
+            >
+              <svg
+                viewBox="0 0 600 380"
+                style={{ width: '100%', height: '380px', overflow: 'visible' }}
+              >
+                {/* Axes */}
+                <line x1="60" y1="340" x2="540" y2="340" stroke="var(--border-subtle)" strokeWidth="1" />
+                <line x1="60" y1="60" x2="60" y2="340" stroke="var(--border-subtle)" strokeWidth="1" />
+                <text x="530" y="360" fill="var(--text-muted)" fontSize="11px">PC1 (Variance)</text>
+                <text x="30" y="55" fill="var(--text-muted)" fontSize="11px">PC2</text>
+
+                {/* Grid guidelines */}
+                <line x1="60" y1="200" x2="540" y2="200" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                <line x1="300" y1="60" x2="300" y2="340" stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+
+                {/* Lines connecting selected point to all other points */}
+                {selectedPointId &&
+                  projectedPoints.map((pt) => {
+                    const sel = projectedPoints.find((p) => p.id === selectedPointId)
+                    if (!sel || pt.id === selectedPointId) return null
+                    return (
+                      <line
+                        key={`line-${pt.id}`}
+                        x1={sel.svgX}
+                        y1={sel.svgY}
+                        x2={pt.svgX}
+                        y2={pt.svgY}
+                        stroke="rgba(99, 102, 241, 0.2)"
+                        strokeDasharray="2 2"
+                      />
+                    )
+                  })}
+
+                {/* Points */}
+                {projectedPoints.map((pt) => {
+                  const isSelected = selectedPointId === pt.id
+                  const isHovered = hoveredPoint?.id === pt.id
+
+                  return (
+                    <g
+                      key={pt.id}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setSelectedPointId(pt.id)}
+                      onMouseEnter={() => setHoveredPoint(pt)}
+                      onMouseLeave={() => setHoveredPoint(null)}
+                    >
+                      <circle
+                        cx={pt.svgX}
+                        cy={pt.svgY}
+                        r={isSelected ? 9 : isHovered ? 7 : 6}
+                        fill={isSelected ? '#6366f1' : isHovered ? '#38bdf8' : '#10b981'}
+                        stroke="#fff"
+                        strokeWidth={isSelected ? 2 : 1}
+                        filter="drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
+                      />
+                      <text
+                        x={pt.svgX}
+                        y={pt.svgY - 12}
+                        textAnchor="middle"
+                        fill={isSelected ? '#818cf8' : 'var(--text-secondary)'}
+                        fontSize="10px"
+                        fontWeight={isSelected ? '600' : 'normal'}
+                      >
+                        {pt.label}
+                      </text>
+                    </g>
+                  )
+                })}
+              </svg>
+
+              {/* Point Inspector Card */}
+              {hoveredPoint && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 24,
+                    right: 24,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 6,
+                    padding: '8px 12px',
+                    fontSize: '11px',
+                    pointerEvents: 'none',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <div style={{ fontWeight: 600, color: '#f8fafc', marginBottom: 2 }}>{hoveredPoint.label}</div>
+                  <div style={{ color: 'var(--text-muted)' }}>Vector [{hoveredPoint.vector.slice(0, 4).join(', ')}...]</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Subtab 1: Vectors */}
       {activeSubTab === 'vectors' && (

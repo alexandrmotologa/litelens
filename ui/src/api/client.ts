@@ -147,6 +147,22 @@ export interface ExplainResponse {
   vdbe?: VdbeAnalysis
 }
 
+export interface ShmHeader {
+  version: number
+  changeCounter: number
+  isInitialized: boolean
+  isBigEndian: boolean
+  pageSize: number
+  maxFrame: number
+  databasePages: number
+  backfilledFrames: number
+  readMarks: number[]
+  activeReadersCount: number
+  minActiveReadMark: number
+  blockingFramesCount: number
+  hasStaleReader: boolean
+}
+
 export interface WalDiagnostics {
   walPath: string
   shmPath: string
@@ -162,6 +178,7 @@ export interface WalDiagnostics {
     salt1: number
     salt2: number
   }
+  shm?: ShmHeader
   totalFrames: number
   lastCommitPages: number
   lastModified?: string
@@ -173,6 +190,66 @@ export interface CheckpointResult {
   log: number
   checkpointed: number
   durationMs: number
+}
+
+export interface ForeignKeyViolation {
+  tableName: string
+  rowId: number
+  parentTable: string
+  fkid: number
+}
+
+export interface StorageHealth {
+  pageSize: number
+  pageCount: number
+  freelistCount: number
+  totalSizeBytes: number
+  unusedSizeBytes: number
+  unusedPercentage: number
+  fragmentation: 'optimal' | 'moderate' | 'high'
+}
+
+export interface HealthReport {
+  healthScore: number
+  integrityOk: boolean
+  integrityErrors: string[]
+  quickCheckOk: boolean
+  quickCheckErrors: string[]
+  foreignKeyViolations: ForeignKeyViolation[]
+  storage: StorageHealth
+  summary: string
+}
+
+export interface FtsTableInfo {
+  name: string
+  columns: string[]
+  tokenizer: string
+  contentTable?: string
+  rowCount: number
+  sql: string
+}
+
+export interface CreateFtsRequest {
+  ftsTableName: string
+  sourceTable?: string
+  columns: string[]
+  tokenizer?: string
+  withTriggers: boolean
+  populateData: boolean
+}
+
+export interface FtsDdlResult {
+  createSql: string
+  triggersSql: string[]
+  populateSql?: string
+}
+
+export interface ImportResult {
+  tableName: string
+  rowsImported: number
+  durationMs: number
+  columns: string[]
+  tableCreated: boolean
 }
 
 export interface SchemaChange {
@@ -209,11 +286,16 @@ export interface BlobInspection {
 const API_BASE = '/api'
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData
+  const headers: Record<string, string> = isFormData
+    ? {}
+    : { 'Content-Type': 'application/json' }
+
   const res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
+      ...headers,
+      ...(options.headers as Record<string, string>),
     },
   })
   if (!res.ok) {
@@ -293,4 +375,55 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ vectorA, vectorB }),
     }),
+
+  // Database Doctor & Health Audit
+  fetchHealth: () => request<HealthReport>('/doctor/health'),
+  executeVacuum: (intoPath?: string) =>
+    request<{ success: boolean; message: string }>('/doctor/vacuum', {
+      method: 'POST',
+      body: JSON.stringify({ intoPath }),
+    }),
+
+  // FTS5 Full-Text Search Studio
+  fetchFtsTables: () => request<FtsTableInfo[]>('/fts/tables'),
+  generateFtsDdl: (req: CreateFtsRequest) =>
+    request<FtsDdlResult>('/fts/ddl', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    }),
+  createFtsTable: (req: CreateFtsRequest) =>
+    request<{ success: boolean; result: FtsDdlResult }>('/fts/create', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    }),
+
+  // Import & Export Hub
+  getExportUrl: (table?: string, format: 'sql' | 'csv' | 'jsonl' = 'sql') => {
+    const params = new URLSearchParams({ format })
+    if (table) params.set('table', table)
+    return `${API_BASE}/transfer/export?${params.toString()}`
+  },
+
+  importData: (table: string, format: 'csv' | 'json', createTable: boolean, data: string | FormData) => {
+    const params = new URLSearchParams({
+      table,
+      format,
+      createTable: createTable ? 'true' : 'false',
+    })
+
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
+      return request<ImportResult>(`/transfer/import?${params.toString()}`, {
+        method: 'POST',
+        body: data,
+      })
+    }
+
+    return request<ImportResult>(`/transfer/import?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': format === 'csv' ? 'text/csv' : 'application/json',
+      },
+      body: typeof data === 'string' ? data : JSON.stringify(data),
+    })
+  },
 }
