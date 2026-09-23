@@ -14,6 +14,7 @@ import {
   AlertCircle,
   FileCode,
   Key,
+  Layers,
 } from 'lucide-react'
 import { api, PaginatedDataResponse, TableInfo, ForeignKeyInfo } from '../api/client'
 
@@ -24,6 +25,7 @@ interface VirtualGridProps {
   onInspectCell: (colName: string, value: any, colType: string) => void
   onOpenAddRow: () => void
   onOpenEditRow: (row: Record<string, any>) => void
+  onOpenMobileTables?: () => void
 }
 
 export const VirtualGrid: React.FC<VirtualGridProps> = ({
@@ -33,6 +35,7 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
   onInspectCell,
   onOpenAddRow,
   onOpenEditRow,
+  onOpenMobileTables,
 }) => {
   const [data, setData] = useState<PaginatedDataResponse | null>(null)
   const [loading, setLoading] = useState(false)
@@ -165,11 +168,24 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 12,
+          flexWrap: 'wrap',
+          gap: 10,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, flex: '1 1 auto' }}>
+          {onOpenMobileTables && (
+            <button
+              onClick={onOpenMobileTables}
+              className="btn-secondary"
+              style={{ fontSize: 12, padding: '5px 10px', gap: 5, borderRadius: 6 }}
+              title="Browse Schema Tables"
+            >
+              <Layers size={13} color="var(--accent-cyan)" />
+              <span>Tables</span>
+            </button>
+          )}
+
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
             <span>{tableName}</span>
             {data && (
               <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>
@@ -178,7 +194,7 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
             )}
           </h2>
 
-          <form onSubmit={handleApplyFilter} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <form onSubmit={handleApplyFilter} style={{ display: 'flex', alignItems: 'center', gap: 6, flex: '1 1 200px', maxWidth: 420 }}>
             <div
               style={{
                 display: 'flex',
@@ -188,7 +204,8 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
                 border: '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-sm)',
                 padding: '4px 8px',
-                width: 260,
+                flex: 1,
+                minWidth: 140,
               }}
             >
               <Filter size={13} color="var(--text-muted)" />
@@ -226,7 +243,7 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
           </form>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <button
             onClick={onOpenAddRow}
             className="btn-primary"
@@ -524,13 +541,16 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
       {/* Pagination Footer */}
       <div
         style={{
-          height: 44,
+          minHeight: 46,
+          height: 'auto',
           background: 'var(--bg-surface)',
           borderTop: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 16px',
+          flexWrap: 'wrap',
+          padding: '8px 16px',
+          gap: 10,
           fontSize: 12,
           color: 'var(--text-secondary)',
         }}

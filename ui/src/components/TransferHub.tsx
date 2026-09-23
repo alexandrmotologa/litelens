@@ -212,7 +212,7 @@ export const TransferHub: React.FC = () => {
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 8 }}>
                 Output Format:
               </label>
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <button
                   className="btn btn-secondary"
                   onClick={() => setExportFormat('sql')}
@@ -334,7 +334,7 @@ export const TransferHub: React.FC = () => {
             </div>
 
             {/* Target Table & Options */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 14 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                   Target Table Name:

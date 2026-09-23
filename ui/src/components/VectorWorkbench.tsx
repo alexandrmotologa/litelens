@@ -186,7 +186,18 @@ export const VectorWorkbench: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--border-subtle)', paddingBottom: 10 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          borderBottom: '1px solid var(--border-subtle)',
+          paddingBottom: 10,
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+        }}
+      >
         <button
           onClick={() => setActiveSubTab('vectors')}
           className={`btn-secondary ${activeSubTab === 'vectors' ? 'active-nav' : ''}`}
@@ -194,6 +205,8 @@ export const VectorWorkbench: React.FC = () => {
             background: activeSubTab === 'vectors' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
             color: activeSubTab === 'vectors' ? '#38bdf8' : 'var(--text-secondary)',
             borderColor: activeSubTab === 'vectors' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
           <Cpu size={14} />
@@ -207,6 +220,8 @@ export const VectorWorkbench: React.FC = () => {
             background: activeSubTab === 'scatter' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
             color: activeSubTab === 'scatter' ? '#38bdf8' : 'var(--text-secondary)',
             borderColor: activeSubTab === 'scatter' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
           <Sparkles size={14} />
@@ -220,6 +235,8 @@ export const VectorWorkbench: React.FC = () => {
             background: activeSubTab === 'jsonb' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
             color: activeSubTab === 'jsonb' ? '#38bdf8' : 'var(--text-secondary)',
             borderColor: activeSubTab === 'jsonb' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
           <FileCode size={14} />
@@ -233,6 +250,8 @@ export const VectorWorkbench: React.FC = () => {
             background: activeSubTab === 'blob' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
             color: activeSubTab === 'blob' ? '#38bdf8' : 'var(--text-secondary)',
             borderColor: activeSubTab === 'blob' ? 'rgba(56, 189, 248, 0.3)' : 'transparent',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
           <Binary size={14} />
@@ -399,7 +418,7 @@ export const VectorWorkbench: React.FC = () => {
               sqlite-vec and raw float32 BLOBs).
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 14 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                   Vector A (Comma-separated float values):

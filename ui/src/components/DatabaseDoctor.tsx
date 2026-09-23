@@ -70,9 +70,9 @@ export const DatabaseDoctor: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: 'clamp(14px, 3vw, 24px)', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', overflowY: 'auto' }}>
       {/* Title & Refresh */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Activity size={24} color="#6366f1" />
@@ -121,7 +121,7 @@ export const DatabaseDoctor: React.FC = () => {
       {report && (
         <>
           {/* Top Row: Score & Summary */}
-          <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '20px' }}>
             {/* Score Card */}
             <div
               style={{
@@ -181,7 +181,7 @@ export const DatabaseDoctor: React.FC = () => {
                   {report.summary}
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '14px' }}>
                   {/* Integrity Check */}
                   <div
                     style={{
@@ -284,7 +284,7 @@ export const DatabaseDoctor: React.FC = () => {
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Storage & Freelist Fragmentation</h3>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '14px', marginBottom: '20px' }}>
               <div style={{ padding: '12px', backgroundColor: 'var(--bg-elevated)', borderRadius: '8px' }}>
                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total Allocated Size</span>
                 <div style={{ fontSize: '18px', fontWeight: 600, marginTop: '4px' }}>
@@ -320,7 +320,7 @@ export const DatabaseDoctor: React.FC = () => {
 
             {/* Unused Progress Bar */}
             <div style={{ marginBottom: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', flexWrap: 'wrap', gap: 6 }}>
                 <span>Storage Utilization</span>
                 <span style={{ color: 'var(--text-muted)' }}>
                   Active: {(100 - report.storage.unusedPercentage).toFixed(1)}% | Fragmented: {report.storage.unusedPercentage.toFixed(1)}%
@@ -347,26 +347,28 @@ export const DatabaseDoctor: React.FC = () => {
                 <AlertTriangle size={18} color="#f59e0b" />
                 <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Orphan Foreign Key References</h3>
               </div>
-              <table className="table" style={{ width: '100%', fontSize: '13px' }}>
-                <thead>
-                  <tr>
-                    <th>Child Table</th>
-                    <th>Row ID</th>
-                    <th>Referenced Parent</th>
-                    <th>FK Index</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.foreignKeyViolations.map((v, i) => (
-                    <tr key={i}>
-                      <td style={{ fontWeight: 600 }}>{v.tableName}</td>
-                      <td><code>{v.rowId}</code></td>
-                      <td style={{ color: '#ec4899' }}>{v.parentTable}</td>
-                      <td><code>FK #{v.fkid}</code></td>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table className="table" style={{ width: '100%', fontSize: '13px' }}>
+                  <thead>
+                    <tr>
+                      <th>Child Table</th>
+                      <th>Row ID</th>
+                      <th>Referenced Parent</th>
+                      <th>FK Index</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {report.foreignKeyViolations.map((v, i) => (
+                      <tr key={i}>
+                        <td style={{ fontWeight: 600 }}>{v.tableName}</td>
+                        <td><code>{v.rowId}</code></td>
+                        <td style={{ color: '#ec4899' }}>{v.parentTable}</td>
+                        <td><code>FK #{v.fkid}</code></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -387,7 +389,7 @@ export const DatabaseDoctor: React.FC = () => {
               Reorganize B-tree database pages, rebuild indices, and reclaim unused disk space from the freelist.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
               {/* In-place VACUUM */}
               <div style={{ padding: '16px', backgroundColor: 'var(--bg-elevated)', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>

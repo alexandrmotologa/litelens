@@ -154,14 +154,16 @@ export const ErDiagram: React.FC = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '12px 20px',
+          flexWrap: 'wrap',
+          gap: 10,
+          padding: '10px 16px',
           backgroundColor: 'var(--bg-surface)',
           borderBottom: '1px solid var(--border-subtle)',
           zIndex: 10,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <GitFork size={18} color="#6366f1" />
             <span style={{ fontWeight: 600, fontSize: '15px' }}>Entity-Relationship Graph</span>
           </div>
@@ -174,11 +176,11 @@ export const ErDiagram: React.FC = () => {
               className="input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '32px', height: '32px', fontSize: '13px', width: '200px' }}
+              style={{ paddingLeft: '32px', height: '32px', fontSize: '13px', width: 'clamp(140px, 25vw, 200px)' }}
             />
           </div>
 
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
             {tables.length} tables · {relationships.length} foreign key relations
           </div>
         </div>

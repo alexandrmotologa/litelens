@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Table, Eye, Search, Layers, Key, ShieldAlert } from 'lucide-react'
+import { Table, Eye, Search, Layers, Key, ShieldAlert, X } from 'lucide-react'
 import { SchemaMetadata, TableInfo } from '../api/client'
 
 interface TableSidebarProps {
@@ -7,6 +7,8 @@ interface TableSidebarProps {
   selectedTable: string | null
   onSelectTable: (name: string) => void
   onInspectTableSchema: (table: TableInfo) => void
+  isMobileOpen?: boolean
+  onCloseMobile?: () => void
 }
 
 export const TableSidebar: React.FC<TableSidebarProps> = ({
@@ -14,6 +16,8 @@ export const TableSidebar: React.FC<TableSidebarProps> = ({
   selectedTable,
   onSelectTable,
   onInspectTableSchema,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -25,9 +29,42 @@ export const TableSidebar: React.FC<TableSidebarProps> = ({
   )
 
   return (
-    <aside className="app-sidebar">
+    <aside className={`app-sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
+      {/* Mobile Drawer Header */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 14px',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: 'var(--bg-elevated)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <Layers size={15} color="var(--accent-cyan)" />
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc' }}>Database Schema</span>
+        </div>
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            style={{
+              color: 'var(--text-muted)',
+              padding: '4px',
+              borderRadius: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Close sidebar"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
       {/* Search Bar */}
-      <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border-subtle)' }}>
+      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-subtle)' }}>
         <div
           style={{
             display: 'flex',

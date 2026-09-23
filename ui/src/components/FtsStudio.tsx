@@ -154,7 +154,7 @@ export const FtsStudio: React.FC = () => {
           gap: 12,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Search size={18} color="#6366f1" />
             <span style={{ fontWeight: 600, fontSize: '15px' }}>FTS5 Full-Text Search Studio</span>
@@ -186,7 +186,7 @@ export const FtsStudio: React.FC = () => {
           )}
 
           {currentFts && (
-            <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', backgroundColor: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                 Tokenizer: <code>{currentFts.tokenizer}</code>
               </span>

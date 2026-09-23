@@ -30,6 +30,7 @@ export const App: React.FC = () => {
   const [inspectCell, setInspectCell] = useState<{ colName: string; colType: string; value: any } | null>(null)
   const [inspectSchemaTable, setInspectSchemaTable] = useState<TableInfo | null>(null)
   const [rowModal, setRowModal] = useState<{ isOpen: boolean; row?: Record<string, any> | null }>({ isOpen: false })
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
 
   const loadInitialData = async () => {
     try {
@@ -95,6 +96,7 @@ export const App: React.FC = () => {
   const handleNavigateToTable = (targetTable: string) => {
     setSelectedTable(targetTable)
     setActiveTab('data')
+    setIsMobileSidebarOpen(false)
   }
 
   return (
@@ -104,19 +106,37 @@ export const App: React.FC = () => {
         schema={schema}
         wal={wal}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab)
+          setIsMobileSidebarOpen(false)
+        }}
         isLiveEvent={isLiveEvent}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
+        isMobileSidebarOpen={isMobileSidebarOpen}
       />
 
       {/* Main Workspace */}
       <div className="app-main">
+        {/* Mobile Backdrop */}
+        {activeTab === 'data' && (
+          <div
+            className={`sidebar-backdrop ${isMobileSidebarOpen ? 'mobile-open' : ''}`}
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar visible in data explorer */}
         {activeTab === 'data' && (
           <TableSidebar
             schema={schema}
             selectedTable={selectedTable}
-            onSelectTable={setSelectedTable}
+            onSelectTable={(name) => {
+              setSelectedTable(name)
+              setIsMobileSidebarOpen(false)
+            }}
             onInspectTableSchema={(t) => setInspectSchemaTable(t)}
+            isMobileOpen={isMobileSidebarOpen}
+            onCloseMobile={() => setIsMobileSidebarOpen(false)}
           />
         )}
 
@@ -130,6 +150,7 @@ export const App: React.FC = () => {
               onInspectCell={(colName, value, colType) => setInspectCell({ colName, value, colType })}
               onOpenAddRow={() => setRowModal({ isOpen: true, row: null })}
               onOpenEditRow={(row) => setRowModal({ isOpen: true, row })}
+              onOpenMobileTables={() => setIsMobileSidebarOpen(true)}
             />
           )}
 
