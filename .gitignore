@@ -10,7 +10,8 @@ litelens
 
 # Node / Frontend
 ui/node_modules/
-ui/dist/
+ui/dist/*
+!ui/dist/.gitkeep
 ui/.env.local
 ui/.env.*.local
 *.tsbuildinfo
